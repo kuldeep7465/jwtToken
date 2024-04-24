@@ -1,0 +1,65 @@
+(1)First Step [appsettings.Json File]
+"Jwt": {
+    "Issuer": "your-issuer",
+    "Audience": "your-audience",
+    "SecretKey": "ABFVBDkdj8y8e38yb8bd389"
+  }
+  
+(2)Secound Step [StartUp.cs File]
+ services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    //sValidateIssuerSigningKey = true,
+                    ValidIssuer =Configuration["Jwt:Issuer"], // change this to your issuer
+                    ValidAudience = Configuration["Jwt:Audience"], // change this to your audience
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:SecretKey"]))// change this to your secret key
+                };
+            });
+			
+			
+	(3)Third Step [Ganerate Token Code]
+	 public IConfiguration _con;
+        public GenerateToken(IConfiguration con)
+        {
+            _con=con;
+        }
+        [HttpGet]
+        [AllowAnonymous]
+        public string GenerateJwtToken()
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                byte[] key = Encoding.UTF8.GetBytes(_con["Jwt:SecretKey"]);
+                var credisial =new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
+                //var tokenDescriptor = new SecurityTokenDescriptor
+                //{
+                //    Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "kuldeep") }),
+                //    Expires = DateTime.UtcNow.AddHours(1),
+                //    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                //};
+                var token = new JwtSecurityToken(_con["Jwt:Issuer"], _con["Jwt:Audience"], null, DateTime.Now.AddHours(1), signingCredentials: credisial);
+                //var token = tokenHandler.CreateToken(tokenDescriptor);
+                return tokenHandler.WriteToken(token);
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                Console.WriteLine($"Error generating JWT: {ex.Message}");
+                return null;
+            }
+            //var tokenHandler = new JwtSecurityTokenHandler();
+            //var key = Encoding.ASCII.GetBytes(_con["Jwt:SecretKey"]);
+            //var SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature);
+            //var jwtCreditioal = new JwtSecurityToken(_con["Jwt:Issuer"], _con["Jwt:Audience"], null, expires: DateTime.Now.AddHours(1));
+            //return tokenHandler.WriteToken(jwtCreditioal);
+        }
+			
