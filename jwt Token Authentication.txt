@@ -6,21 +6,21 @@
   }
   
 (2)Secound Step [StartUp.cs File]
- services.AddAuthentication(options =>
+    services.AddAuthentication(e =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
+                e.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                e.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(s =>
             {
-                options.TokenValidationParameters = new TokenValidationParameters
+                s.SaveToken = true;
+                s.TokenValidationParameters = new TokenValidationParameters()
                 {
                     ValidateIssuer = true,
+                    ValidateIssuerSigningKey = true,
                     ValidateAudience = true,
-                    ValidateLifetime = true,
-                    //sValidateIssuerSigningKey = true,
-                    ValidIssuer =Configuration["Jwt:Issuer"], // change this to your issuer
-                    ValidAudience = Configuration["Jwt:Audience"], // change this to your audience
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:SecretKey"]))// change this to your secret key
+                    ValidAudience = Configuration.GetSection("Jwt")["Audience"],
+                    ValidIssuer = Configuration.GetSection("Jwt")["Issuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(Configuration.GetSection("Jwt")["SecretKey"]))
                 };
             });
 			
