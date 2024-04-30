@@ -35,31 +35,29 @@
         [AllowAnonymous]
         public string GenerateJwtToken()
         {
-            try
-            {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                byte[] key = Encoding.UTF8.GetBytes(_con["Jwt:SecretKey"]);
-                var credisial =new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
-                //var tokenDescriptor = new SecurityTokenDescriptor
-                //{
-                //    Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "kuldeep") }),
-                //    Expires = DateTime.UtcNow.AddHours(1),
-                //    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                //};
-                var token = new JwtSecurityToken(_con["Jwt:Issuer"], _con["Jwt:Audience"], null, DateTime.Now.AddHours(1), signingCredentials: credisial);
-                //var token = tokenHandler.CreateToken(tokenDescriptor);
-                return tokenHandler.WriteToken(token);
-            }
-            catch (Exception ex)
-            {
-                // Handle exception
-                Console.WriteLine($"Error generating JWT: {ex.Message}");
-                return null;
-            }
-            //var tokenHandler = new JwtSecurityTokenHandler();
-            //var key = Encoding.ASCII.GetBytes(_con["Jwt:SecretKey"]);
-            //var SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature);
-            //var jwtCreditioal = new JwtSecurityToken(_con["Jwt:Issuer"], _con["Jwt:Audience"], null, expires: DateTime.Now.AddHours(1));
-            //return tokenHandler.WriteToken(jwtCreditioal);
+        	try
+		{
+		    var tokenHandler = new JwtSecurityTokenHandler();
+		    byte[] key = Encoding.UTF8.GetBytes(_con["Jwt:SecretKey"]);
+		    var credisial =new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
+		    //var tokenDescriptor = new SecurityTokenDescriptor
+		    //{
+		    //    Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "kuldeep") }),
+		    //    Expires = DateTime.UtcNow.AddHours(1),
+		    //    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+		    //};
+		    List<Claim> lstClaim = new List<Claim>();
+		    lstClaim.Add(new Claim("Name", "Kulddep"));
+		    var token = new JwtSecurityToken(_con["Jwt:Issuer"], _con["Jwt:Audience"], lstClaim, null, DateTime.Now.AddHours(1), signingCredentials: credisial);
+		    //var token = tokenHandler.CreateToken(tokenDescriptor);
+		    return tokenHandler.WriteToken(token);
+		}
+		catch (Exception ex)
+		{
+		    // Handle exception
+		    Console.WriteLine($"Error generating JWT: {ex.Message}");
+		    return null;
+		}
+            
         }
 			
